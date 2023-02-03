@@ -49,7 +49,7 @@ def checkAssignTo(function:list)-> bool:
     if len(function)!=4:
         return False
     else:
-        if function[0]==":" :
+        if function[0]==":" and type(function[1]=="int") and type(function[2])=="str":
             return True
         else:
             return False
