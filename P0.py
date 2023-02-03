@@ -43,4 +43,15 @@ def main():
     loadLang('lang.txt')
     openCode('code.txt')
 
+def checkAssignTo(function:list)-> bool:
+    "Lista de tamaño 4"
+    ": n, name"
+    if len(function)!=4:
+        return False
+    else:
+        if function[0]==":" :
+            return True
+        else:
+            return False
+
 main()
