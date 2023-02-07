@@ -49,6 +49,7 @@ def tokenizer(data:list)->bool:
 
 variables=[]
 
+
 def addItem (var: str)->list:
     variables.append(var)
 
@@ -279,5 +280,8 @@ def recognizeNot (cond: str, function:list, command,list)->bool:
 def main():
     loadLang('lang.txt')
     openCode('code.txt')
+
+#TODO cambiar tipos de dato str -> int
+#TODO identificar bloques de codigo con []
 
 main()
