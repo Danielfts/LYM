@@ -68,7 +68,7 @@ def checkAssignTo(function:list)-> bool:
     else:
         if function[0]==":" and type(function[1])=="int" and type(function[2])=="str":
             return True
-        else if function[0]==":" and type(function[2])=="str" and searchItem(function[1]):
+        elif function[0]==":" and type(function[2])=="str" and searchItem(function[1]):
             return True
         else:
             return False
@@ -82,7 +82,7 @@ def checkGoto (function: list)->bool:
         #revisar variables----
         if function[0]==":" and type(function[1])=="int" and type(function[2])=="int":
             return True
-        else if function[0]==":" and searchItem(function[1]) and type(function[2])=="int":
+        elif function[0]==":" and searchItem(function[1]) and type(function[2])=="int":
             return True
         else:
             return False
@@ -95,7 +95,7 @@ def checkMove (function: list)-> bool:
     else:
         if function [0]==":" and type(function[1])=="int":
             return True
-        else if: function[0]==":" and searchItem(function[1]):
+        elif function[0]==":" and searchItem(function[1]):
             return True
         else: 
             return False
@@ -130,7 +130,7 @@ def checkPutOrPick (function: list)-> bool:
     else:
         if function[0]==":" and type(function[1])=="int" and (function[2]=="balloons" or function[2]=="chips"):
             return True
-        else if function[0]==":" and searchItem(function[1]) and (function[2]=="balloons" or function[2]=="chips"):
+        elif function[0]==":" and searchItem(function[1]) and (function[2]=="balloons" or function[2]=="chips"):
             return True
         else:
             return False
@@ -144,7 +144,7 @@ def checkMoveToOrJumpTo (function: list) -> bool:
         if function[0]==":" and type(function[1])=="int" and ((function[2]=="front")
             or function[2]=="back" or function[2]=="right" or function[2]=="left"):
             return True
-        else if function[0]==":"  and searchItem(function[1]) and ((function[2]=="front")
+        elif function[0]==":"  and searchItem(function[1]) and ((function[2]=="front")
             or function[2]=="back" or function[2]=="right" or function[2]=="left"):
             return True
         else:
@@ -159,7 +159,7 @@ def checkMoveOrjumpIndir (function: list)->bool:
         if function[0]==":" and type(function[1])=="int" and (function[2]=="south" or function[2]=="north" or
             function[2]=="east" or function[2]=="west"):
             return True
-        else if function[0]==":" and searchItem(function[1]) and (function[2]=="south" or function[2]=="north" or
+        elif function[0]==":" and searchItem(function[1]) and (function[2]=="south" or function[2]=="north" or
             function[2]=="east" or function[2]=="west"):
             return True
         else:
