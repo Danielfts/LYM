@@ -176,6 +176,30 @@ def chechNop (function: list)-> bool:
         else:
             return False
 
+#FUNCIONES PARA IDENTIFICAR USO DE COMANDO
+
+def recognizeCommand (command: str, function:list)->bool:
+    recognized=False
+    if command=="asignto":
+        recognized=checkAssignTo(function)
+    elif command=="goto":
+        recognized=checkGoto(function)
+    elif command=="move":
+        recognized=checkMove(function)
+    elif command=="turn":
+        recognized=checkTurn(function)
+    elif command=="face":
+        recognized=checkFace(function)
+    elif command=="put" or command=="pick":
+        recognized=checkPutOrPick(function)
+    elif command=="movetothe" or command=="jumptothe":
+        recognized=checkMoveToOrJumpTo(function)
+    elif command=="moveindir" or command=="jumpindir":
+        recognized=checkMoveOrjumpIndir
+    elif command=="nop":
+        recognized=chechNop
+    return recognized
+
 
 #Main
 
