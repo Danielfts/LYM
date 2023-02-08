@@ -1,0 +1,64 @@
+S0 -> robot_r BODY
+BODY -> lambda
+BODY -> VARIABLES PROCEDURES BLOCK
+
+VARIABLES -> NAMES ;
+NAMES -> NAME
+NAMES -> NAME , NAMES
+NAME -> [a-z]\w*    
+
+PROCEDURES -> procs DEFINITIONS
+DEFINITIONS -> DEF DEFINITIONS
+DEFINITIONS -> DEF
+DEF -> NAME [ PARAMS INSTRUCTIONS ]
+
+PARAMS -> |NAMES|
+
+INSTRUCTIONS -> INSTRUCTION ; INSTRUCTIONS
+INSTRUCTIONS -> INSTRUCTION
+INSTRUCTION -> COMMAND
+INSTRUCTION -> CONTROL
+INSTRUCTION -> CALL
+
+COMMAND -> assignto: N , NAME
+COMMAND -> goTo: X, X
+COMMAND -> move: X
+COMMAND -> turn: D
+COMMAND -> face: OTN
+COMMAND -> put: X, OBJ
+COMMAND -> pick: X, OBJ
+COMMAND -> movetothe: X, DIR
+COMMAND -> moveindir: X , OTN
+COMMAND -> jumptothe: X , DIR
+COMMAND -> jumpindir: X , OTN
+COMMAND -> nop: 
+
+N -> [0-9]*
+X-> NAME  
+X -> N
+DIR -> front | right | left | back
+OTN -> north | south | east | west
+D -> left | right | around
+OBJ -> baloons | chips
+
+CALL -> NAME : ARGS
+ARGS -> ARG , ARGS
+ARGS -> ARG
+ARG -> X
+
+CONTROL -> CONDITIONAL | LOOP | REPEAT
+CONDITIONAL -> if: CONDITION then: EXEC else: EXEC
+LOOP -> while: CONDITION do: EXEC
+REPEAT -> repeat: X EXEC
+
+EXEC -> BLOCK | COMMAND
+CONDITION -> facing: OTN 
+CONDITION -> canPut: X , OBJ  
+CONDITION -> canPick: X , OBJ  
+CONDITION -> canMoveInDir: X , OTN 
+CONDITION -> canJumpInDir: X, OTN 
+CONDITION -> canMoveToThe: X , DIR 
+CONDITION -> canJumpToThe: X, DIR 
+CONDITION -> not: CONDITION 
+
+BLOCK -> [ INSTRUCTIONS ]
