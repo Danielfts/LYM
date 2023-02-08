@@ -34,9 +34,9 @@ def openCode(file):
     f.close()
     return data
 
-#Tokenizer
+#parser
 
-def tokenizer(data:list)->bool:
+def parser(data:list)->bool:
     result = False
     if data[0] == 'robot_r':
 
@@ -283,5 +283,6 @@ def main():
 
 #TODO cambiar tipos de dato str -> int
 #TODO identificar bloques de codigo con []
+#TODO fix toeknizer, separate commas, colons and semicolons
 
 main()
