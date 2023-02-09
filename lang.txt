@@ -2,7 +2,7 @@ S0 -> robot_r BODY
 BODY -> lambda
 BODY -> VARIABLES PROCEDURES BLOCK
 
-VARIABLES -> NAMES ;
+VARIABLES -> vars NAMES ;
 NAMES -> NAME
 NAMES -> NAME , NAMES
 NAME -> [a-z]\w*    
