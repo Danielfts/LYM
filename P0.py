@@ -49,18 +49,15 @@ def openCode(file):
 
 #FUNCIONES PARA VERIFICAR COMANDOS
 
-def checkAssignTo(function:list)-> bool:
-    #Lista de tamaño 4
+def checkAssignTo(function:list[str])-> bool:
     #assignTo: n,name
-    if len(function)!=4:
-        return False
+    
+    if function[0]==":" and function[1].isdigit() and function[2]=="," and function[3].isalpha():
+        if function[3] in variables:
+            return True
+        else: return False
     else:
-        if function[0]==":" and type(function[1])=="int" and type(function[3])=="str" and  function[2]==",":
-            return True
-        elif function[0]==":" and type(function[3])=="str" and searchItem(function[1]) and function[2]==",":
-            return True
-        else:
-            return False
+        return False
 
 def checkGoto (function: list)->bool:
     #Lista de tamaño 4
@@ -336,7 +333,7 @@ def checkVARS(d)->bool:
         expectsWord = False
         word = pop(d)
         while word != ';':
-    # NAME -> [a-z]\w*   
+    # NAME -> [a-z]\w*   TODO MATAR CODIGO CUANDO , ;
             validName = bool(re.match('(^[a-z])\w*',word))
             if not expectsComma:
                 if  validName and not (word in reserved):
@@ -368,6 +365,8 @@ def checkVARS(d)->bool:
             word = pop(d)
             if expectsWord and word == ';':
                 print(f'Esperaba nombre, recibí ";"')
+                valid = False
+                break
     return valid
 
 def checkPROCS(d)->bool:
@@ -402,8 +401,8 @@ def checkPROCS(d)->bool:
                 expectsComma = False
                 expectsWord = False
                 word = pop(d)
-                while word != '|':
             # NAME -> [a-z]\w*   
+                while word != '|':
                     validName = bool(re.match('(^[a-z])\w*',word))
                     if not expectsComma:
                         if  validName and not (word in reserved):
@@ -436,7 +435,17 @@ def checkPROCS(d)->bool:
                     if expectsWord and word == '|':
                         print(f'Esperaba nombre, recibí "|"')
                 expects = 'instructions'
-            
+            #INSTRUCTIONS -> INSTRUCTION ; INSTRUCTIONS
+            #INSTRUCTIONS -> INSTRUCTION
+            #INSTRUCTION -> COMMAND
+            #INSTRUCTION -> CONTROL
+            #INSTRUCTION -> CALL
+            elif expects == 'instructions':
+                while word != ']':
+
+                    pass
+                pass
+
             else:
                 continues = False
                 break
@@ -452,7 +461,5 @@ def main():
     print(parser(data))
 
 #TODO cambiar tipos de dato str -> int
-#TODO identificar bloques de codigo con []
-#TODO fix toeknizer, separate commas, colons and semicolons
 
 main()
