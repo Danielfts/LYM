@@ -263,11 +263,20 @@ def recognizeNot (cond: str, function:list, command:list)->bool:
     else:
         return False
 #FUNCION LISTA VARIABLES
-variables=[]
-
+variables = []
+procedures = []
+parameters = []
 def addVar (var: str)->list:
     global variables
     variables.append(var)
+
+def addProc (var: str)->list:
+    global procedures
+    procedures.append(var)
+
+def addParams (var: str)->list:
+    global parameters
+    parameters.append(var)
 
 def searchItem(var:str)->bool:
     global variables
@@ -301,7 +310,7 @@ def parser(data:list)->bool:
             if not valid: return result
 
     # PROCEDURES -> procs DEFINITIONS
-            #valid = checkPROCS(d)
+            valid = checkPROCS(d)
             if not valid: return result
 
 
@@ -315,7 +324,7 @@ def parser(data:list)->bool:
 
 def checkVARS(d)->bool:
     print('Esperando: vars NAMES ;')
-    reserved = terminales
+    reserved = terminales.copy()
     reserved.remove(';')
     reserved.remove(',')
     valid = True
@@ -362,6 +371,9 @@ def checkVARS(d)->bool:
     return valid
 
 def checkPROCS(d)->bool:
+    reserved = terminales.copy()
+    reserved.remove('|')
+    reserved.remove(',')
     valid = False
     print('Esperando: procs DEFINITIONS')
     procs = pop(d)
@@ -372,12 +384,62 @@ def checkPROCS(d)->bool:
     # DEF -> NAME [ PARAMS INSTRUCTIONS ]
         continues = True
         expects = 'name'
+        openBlock = False
         while continues:
             word = pop(d)
             validName = bool(re.match('^[a-z]\w*',word))
             if expects == 'name' and validName: 
-                pass 
-            pass
+                print(f'Nombre de procedimiento: {word}')
+                addProc(word)
+                expects = 'open'
+            elif expects == 'open' and word == '[':
+                openBlock == True
+                expects = 'parameters'
+    # PARAMS -> |NAMES|
+            elif expects == 'parameters' and word == '|':
+            # NAMES -> NAME
+            # NAMES -> NAME , NAMES
+                expectsComma = False
+                expectsWord = False
+                word = pop(d)
+                while word != '|':
+            # NAME -> [a-z]\w*   
+                    validName = bool(re.match('(^[a-z])\w*',word))
+                    if not expectsComma:
+                        if  validName and not (word in reserved):
+                            print(f'Found parameter: {word}')
+                            addParams(word)
+                            expectsComma = True
+                            expectsWord = False
+                        elif word in reserved :
+                            print(f'{word} es una palabra reservada')
+                            valid = False
+                            break
+                        elif word == ',':
+                            print('Esperaba nombre, recibí ","')
+                            valid = False
+                            break
+                        elif not validName:
+                            print('Nombre inválido')
+                            valid = False
+                            break
+
+                    elif expectsComma:
+                        if word == ',':
+                            expectsComma = False
+                            expectsWord = True
+                        else: 
+                            print(f'Esperaba coma, recibí {word}')
+                            valid = False
+                            break
+                    word = pop(d)
+                    if expectsWord and word == '|':
+                        print(f'Esperaba nombre, recibí "|"')
+                expects = 'instructions'
+            
+            else:
+                continues = False
+                break
     else: 
         print(f'Esperaba PROCS, encontré: {procs}')
     return valid
