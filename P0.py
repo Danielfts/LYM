@@ -21,43 +21,31 @@ def loadLang(file):
     #print(terminales)     
     f.close()
 
+def printWords(data):
+    for i in data: print(i)
+    pass
+
 def openCode(file):
     data = ''
     f = open(file,'r')
     for i in f:
         i = re.sub(',',' , ',i)
+        i = re.sub(';',' ; ',i)
+        i = re.sub('\|',' | ',i)
+        i = re.sub('\[',' [ ',i)
+        i = re.sub('\]',' ] ',i)
+        i = re.sub(':',' : ',i)
         i = re.sub('\n'," ",string=i) 
         i = i.lower()
         data += i
     data = data.split()
-    print(tuple(data))
+    printWords(data)
     f.close()
     return data
 
-#parser
-
-def parser(data:list)->bool:
-    result = False
-    if data[0] == 'robot_r':
-
-        pass
-    else:
-        result = False
-    return result
-
-#FUNCION LISTA VARIABLES
-
-variables=[]
 
 
-def addItem (var: str)->list:
-    variables.append(var)
 
-def searchItem(var:str)->bool:
-    for i in variables:
-        if (variables[i]=="var"):
-            return True
-    return False
 
 #FUNCIONES PARA VERIFICAR COMANDOS
 
@@ -274,12 +262,99 @@ def recognizeNot (cond: str, function:list, command,list)->bool:
         return checkNot(function,command)
     else:
         return False
+#FUNCION LISTA VARIABLES
+variables=[]
 
+def addVar (var: str)->list:
+    global variables
+    variables.append(var)
+
+def searchItem(var:str)->bool:
+    global variables
+    for i in variables:
+        if (variables[i]==var):
+            return True
+    return False
+
+#parser
+
+def pop(l:list):
+    return(l.pop(0))
+
+def parser(data:list)->bool:
+    global variables
+
+    result = False
+    d = data
+    # S0
+    if pop(d) == 'robot_r': 
+        print('Found robot_r')
+    # BODY -> lambda
+        if len(data) == 0: 
+            result = True
+            print('Cuerpo vacío: Fin')
+    # BODY -> VARIABLES PROCEDURES BLOCK
+        else: 
+            print('Esperando: VARIABLES PROCEDURES BLOCK')
+            print('Esperando: vars NAMES ;')
+    # VARIABLES -> vars NAMES ;
+            validVars = checkVARS(d)
+
+            if validVars:
+                pass
+
+
+    else:
+        result = False
+
+    return result
+
+def checkVARS(d)->bool:
+    reserved = terminales
+    reserved.remove(';')
+    reserved.remove(',')
+    valid = True
+    if pop(d) == 'vars':
+    # NAMES -> NAME
+    # NAMES -> NAME , NAMES
+        expectsComma = False
+        expectsWord = False
+        word = pop(d)
+        while word != ';':
+    # NAME -> [a-z]\w*   
+            validName = bool(re.match('^[a-z]\w*',word))
+            if not expectsComma:
+                if  validName and not (word in reserved):
+                    print(f'Found word: {word}')
+                    addVar(word)
+                    expectsComma = True
+                    expectsWord = False
+                elif word in reserved:
+                    print(f'{word} es una palabra reservada')
+                    valid = False
+                    break
+                elif word == ',':
+                    print('Esperaba nombre, recibí ","')
+                    valid = False
+                    break
+            elif expectsComma:
+                if word == ',':
+                    expectsComma = False
+                    expectsWord = True
+                else: 
+                    print(f'Esperaba coma, recibí {word}')
+                    valid = False
+                    break
+            word = pop(d)
+            if expectsWord and word == ';':
+                print(f'Esperaba nombre, recibí ";"')
+    return valid
 #Main
 
 def main():
-    loadLang('lang.txt')
-    openCode('code.txt')
+    loadLang('alphabet.txt')
+    data = openCode('code.txt')
+    print(parser(data))
 
 #TODO cambiar tipos de dato str -> int
 #TODO identificar bloques de codigo con []
