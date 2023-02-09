@@ -54,6 +54,8 @@ def checkAssignTo(function:list[str])-> bool:
     
     if function[0]==":" and function[1].isdigit() and function[2]=="," and function[3].isalpha():
         if function[3] in variables:
+            print(f'Assigned {function[1]} -> {function[3]}')
+            del function[0:4]
             return True
         else: return False
     else:
@@ -164,26 +166,35 @@ def chechNop (function: list)-> bool:
 
 #FUNCIONES PARA IDENTIFICAR USO DE COMANDO
 
-def recognizeCommand (command: str, function:list)->bool:
+def recognizeCommand (command: str, function:list[str])->bool:
     recognized=False
-    if command=="asignto":
+    if command=="assignto":
+        print('Recognized command: assignto')
         recognized=checkAssignTo(function)
     elif command=="goto":
+        print('Recognized command: goto')
         recognized=checkGoto(function)
     elif command=="move":
+        print('Recognized command: move')
         recognized=checkMove(function)
     elif command=="turn":
+        print('Recognized command: turn')
         recognized=checkTurn(function)
     elif command=="face":
+        print('Recognized command: face')
         recognized=checkFace(function)
     elif command=="put" or command=="pick":
+        print('Recognized command: put | pick')
         recognized=checkPutOrPick(function)
     elif command=="movetothe" or command=="jumptothe":
+        print('Recognized command: movetothe | jumptothe')
         recognized=checkMoveToOrJumpTo(function)
     elif command=="moveindir" or command=="jumpindir":
-        recognized=checkMoveOrjumpIndir
+        print('Recognized command: moveindir | jumpindir')
+        recognized=checkMoveOrjumpIndir()
     elif command=="nop":
-        recognized=chechNop
+        print('Recognized command: nop')
+        recognized=chechNop()
     return recognized
 
 #FUNCIONES PARA VERIFICAR CONDICIONALES
@@ -333,7 +344,7 @@ def checkVARS(d)->bool:
         expectsWord = False
         word = pop(d)
         while word != ';':
-    # NAME -> [a-z]\w*   TODO MATAR CODIGO CUANDO , ;
+    # NAME -> [a-z]\w*   
             validName = bool(re.match('(^[a-z])\w*',word))
             if not expectsComma:
                 if  validName and not (word in reserved):
@@ -402,6 +413,8 @@ def checkPROCS(d)->bool:
                 expectsWord = False
                 word = pop(d)
             # NAME -> [a-z]\w*   
+                if word == '|':
+                    print('Parameters: |λ|')
                 while word != '|':
                     validName = bool(re.match('(^[a-z])\w*',word))
                     if not expectsComma:
@@ -412,15 +425,18 @@ def checkPROCS(d)->bool:
                             expectsWord = False
                         elif word in reserved :
                             print(f'{word} es una palabra reservada')
+                            continues = False
                             valid = False
                             break
                         elif word == ',':
                             print('Esperaba nombre, recibí ","')
+                            continues = False
                             valid = False
                             break
                         elif not validName:
                             print('Nombre inválido')
                             valid = False
+                            continues = False
                             break
 
                     elif expectsComma:
@@ -430,21 +446,37 @@ def checkPROCS(d)->bool:
                         else: 
                             print(f'Esperaba coma, recibí {word}')
                             valid = False
+                            continues = False
                             break
                     word = pop(d)
                     if expectsWord and word == '|':
                         print(f'Esperaba nombre, recibí "|"')
-                expects = 'instructions'
+                        valid = False
+                        continues = False
+                        break
+                
+                if continues:
+                    expects = 'instructions'
             #INSTRUCTIONS -> INSTRUCTION ; INSTRUCTIONS
             #INSTRUCTIONS -> INSTRUCTION
             #INSTRUCTION -> COMMAND
             #INSTRUCTION -> CONTROL
             #INSTRUCTION -> CALL
             elif expects == 'instructions':
+                print(word)
+                print('Esperando INSTRUCTIONS')
+                expectsSemiColon = False
+                expectsInstruction = False
                 while word != ']':
-
-                    pass
-                pass
+                    if recognizeCommand(word, d): 
+                        pass
+                    else: 
+                        valid = False
+                        continues = False
+                        break
+                    word = pop(d)
+                if word == ']':
+                    print('INSTRUCTIONS : λ')
 
             else:
                 continues = False
