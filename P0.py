@@ -63,7 +63,7 @@ def checkGoto (function: list[str])->bool:
     #Lista de tamaño 4
     # goto: x,y
     #revisar variables----
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables )and function[2] == ',' and (function[4].isdigit() or function[4] in variables ) :
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters )and function[2] == ',' and (function[4].isdigit() or function[4] in variables ) :
         del function[0:4]
         return True
     
@@ -74,7 +74,7 @@ def checkMove (function: list)-> bool:
     #Lista de tamaño 2
     # move :n
 
-    if function [0]==":" and  (function[1].isdigit() or function[1] in variables):
+    if function [0]==":" and  (function[1].isdigit() or function[1] in variables or function[1] in parameters):
         del function[0:2]
         return True
     else: 
@@ -103,7 +103,7 @@ def checkPutOrPick (function: list)-> bool:
     #Lista de tamaño 4
     #put/pick: n,x
     
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]=="balloons" or function[3]=="chips") :
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and (function[3]=="balloons" or function[3]=="chips") :
         del function[0:4]
         return True
     else:
@@ -112,7 +112,7 @@ def checkPutOrPick (function: list)-> bool:
 def checkMoveToOrJumpTo (function: list) -> bool:
     #Lista de tamaño 4
     #movetothe/jumptothe; n,d
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and function[3]== ('back' or 'right' or 'left' or 'front') :
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and function[3]== ('back' or 'right' or 'left' or 'front') :
         del function[0:4]
         return True
     
@@ -123,7 +123,7 @@ def checkMoveOrjumpIndir (function: list)->bool:
     #Lista de tamaño 4
     #jumpIndir: n,D
    
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]==("south" or "north" or
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and (function[3]==("south" or "north" or
         "east" or "west")) :
         del function[0:4]
         return True
@@ -439,10 +439,11 @@ def checkPROCS(d)->bool:
             #INSTRUCTION -> CONTROL
             #INSTRUCTION -> CALL
             elif expects == 'instructions':
-                print(word)
                 print('Esperando INSTRUCTIONS')
                 expectsSemiColon = False
                 expectsInstruction = False
+                if word == ']':
+                    print('INSTRUCTIONS : λ')
                 while word != ']':
                     if not expectsSemiColon:
                         if recognizeCommand(word, d): 
@@ -451,8 +452,10 @@ def checkPROCS(d)->bool:
                         elif word == ';':
                             print('Esperaba nombre, recibí ";"')
                             valid = False
+                            continues = False
                             break
                         else: 
+                            print('Comando inválido')
                             valid = False
                             continues = False
                             break
@@ -462,12 +465,11 @@ def checkPROCS(d)->bool:
                             expectsInstruction = True
                         pass
                     word = pop(d)
+                    if word == ']': expects = 'name'
                     if expectsInstruction and word == ';':
                         print(f'Esperaba instrucción, recibí ";"')
                         valid = False
                         break
-                if word == ']':
-                    print('INSTRUCTIONS : λ')
 
             else:
                 continues = False
