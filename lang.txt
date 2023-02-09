@@ -1,8 +1,9 @@
 S0 -> robot_r BODY
-BODY -> lambda
+BODY -> λ
 BODY -> VARIABLES PROCEDURES BLOCK
 
 VARIABLES -> vars NAMES ;
+NAMES -> λ
 NAMES -> NAME
 NAMES -> NAME , NAMES
 NAME -> [a-z]\w*    
@@ -16,21 +17,22 @@ PARAMS -> |NAMES|
 
 INSTRUCTIONS -> INSTRUCTION ; INSTRUCTIONS
 INSTRUCTIONS -> INSTRUCTION
+INSTRUCTIONS -> λ
 INSTRUCTION -> COMMAND
 INSTRUCTION -> CONTROL
 INSTRUCTION -> CALL
 
 COMMAND -> assignto: N , NAME
 COMMAND -> goTo: X, X
-COMMAND -> move: X
-COMMAND -> turn: D
-COMMAND -> face: OTN
 COMMAND -> put: X, OBJ
 COMMAND -> pick: X, OBJ
 COMMAND -> movetothe: X, DIR
 COMMAND -> moveindir: X , OTN
 COMMAND -> jumptothe: X , DIR
 COMMAND -> jumpindir: X , OTN
+COMMAND -> move: X
+COMMAND -> turn: D
+COMMAND -> face: OTN
 COMMAND -> nop: 
 
 N -> [0-9]*
