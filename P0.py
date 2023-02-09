@@ -257,7 +257,7 @@ def recognizeConditional (cond:str, function: list)->bool:
         recognized=checkCanMoveJumpTo(function)
     return recognized
 
-def recognizeNot (cond: str, function:list, command,list)->bool:
+def recognizeNot (cond: str, function:list, command:list)->bool:
     if cond=="not":
         return checkNot(function,command)
     else:
@@ -296,12 +296,16 @@ def parser(data:list)->bool:
     # BODY -> VARIABLES PROCEDURES BLOCK
         else: 
             print('Esperando: VARIABLES PROCEDURES BLOCK')
-            print('Esperando: vars NAMES ;')
     # VARIABLES -> vars NAMES ;
-            validVars = checkVARS(d)
+            valid = checkVARS(d)
+            if not valid: return result
 
-            if validVars:
-                pass
+    # PROCEDURES -> procs DEFINITIONS
+            #valid = checkPROCS(d)
+            if not valid: return result
+
+
+                
 
 
     else:
@@ -310,11 +314,13 @@ def parser(data:list)->bool:
     return result
 
 def checkVARS(d)->bool:
+    print('Esperando: vars NAMES ;')
     reserved = terminales
     reserved.remove(';')
     reserved.remove(',')
     valid = True
     if pop(d) == 'vars':
+        print('Token VARS encontrado')
     # NAMES -> NAME
     # NAMES -> NAME , NAMES
         expectsComma = False
@@ -322,14 +328,14 @@ def checkVARS(d)->bool:
         word = pop(d)
         while word != ';':
     # NAME -> [a-z]\w*   
-            validName = bool(re.match('^[a-z]\w*',word))
+            validName = bool(re.match('(^[a-z])\w*',word))
             if not expectsComma:
                 if  validName and not (word in reserved):
                     print(f'Found word: {word}')
                     addVar(word)
                     expectsComma = True
                     expectsWord = False
-                elif word in reserved:
+                elif word in reserved :
                     print(f'{word} es una palabra reservada')
                     valid = False
                     break
@@ -337,6 +343,11 @@ def checkVARS(d)->bool:
                     print('Esperaba nombre, recibí ","')
                     valid = False
                     break
+                elif not validName:
+                    print('Nombre inválido')
+                    valid = False
+                    break
+
             elif expectsComma:
                 if word == ',':
                     expectsComma = False
@@ -349,6 +360,28 @@ def checkVARS(d)->bool:
             if expectsWord and word == ';':
                 print(f'Esperaba nombre, recibí ";"')
     return valid
+
+def checkPROCS(d)->bool:
+    valid = False
+    print('Esperando: procs DEFINITIONS')
+    procs = pop(d)
+    if procs == 'procs': 
+        print("Token PROCS encontrado")
+    # DEFINITIONS -> DEF DEFINITIONS
+    # DEFINITIONS -> DEF
+    # DEF -> NAME [ PARAMS INSTRUCTIONS ]
+        continues = True
+        expects = 'name'
+        while continues:
+            word = pop(d)
+            validName = bool(re.match('^[a-z]\w*',word))
+            if expects == 'name' and validName: 
+                pass 
+            pass
+    else: 
+        print(f'Esperaba PROCS, encontré: {procs}')
+    return valid
+
 #Main
 
 def main():
