@@ -52,117 +52,93 @@ def openCode(file):
 def checkAssignTo(function:list[str])-> bool:
     #assignTo: n,name
     
-    if function[0]==":" and function[1].isdigit() and function[2]=="," and function[3].isalpha():
-        if function[3] in variables:
-            print(f'Assigned {function[1]} -> {function[3]}')
-            del function[0:4]
-            return True
-        else: return False
+    if function[0]==":" and function[1].isdigit() and function[2]=="," and function[3] in variables:
+        print(f'Assigned {function[1]} -> {function[3]}')
+        del function[0:4]
+        return True
     else:
         return False
 
-def checkGoto (function: list)->bool:
+def checkGoto (function: list[str])->bool:
     #Lista de tamaño 4
     # goto: x,y
-    if len(function)!=4:
-        return False
+    #revisar variables----
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables )and function[2] == ',' and (function[4].isdigit() or function[4] in variables ) :
+        del function[0:4]
+        return True
+    
     else:
-        #revisar variables----
-        if function[0]==":" and type(function[1])=="int" and type(function[3])=="int" and function[2]==",":
-            return True
-        elif function[0]==":" and searchItem(function[1]) and type(function[3])=="int" and function[2]==",":
-            return True
-        else:
-            return False
+        return False
 
 def checkMove (function: list)-> bool:
     #Lista de tamaño 2
     # move :n
-    if len(function)!=2:
+
+    if function [0]==":" and  (function[1].isdigit() or function[1] in variables):
+        del function[0:2]
+        return True
+    else: 
         return False
-    else:
-        if function [0]==":" and type(function[1])=="int":
-            return True
-        elif function[0]==":" and searchItem(function[1]):
-            return True
-        else: 
-            return False
 
 def checkTurn (function:list)-> bool:
     #Lista de tamaño 2
     #turn: d
-    if len(function)!=2:
-        return False
+    if function[0]==":" and (function[1]=="left" or function[1]=="right" or function[1]=="around"):
+        del function[0:2]
+        return True
     else:
-        if function[0]==":" and (function[1]=="left" or function[1]=="right" or function[1]=="around"):
-            return True
-        else:
-            return False
+        return False
 
 def checkFace (function: list)-> bool:
     #Lista de tamaño 2
     #face: o
-    if len(function)!=2:
-        return False
+   
+    if function[0]==":" and (function[1]=="south" or function[1]=="east" or function[1]=="west" or function[1]=="north"):
+        del function[0:2]
+        return True
     else:
-        if function[0]==":" and (function[1]=="south" or function[1]=="east" or function[1]=="west" or function[1]=="north"):
-            return True
-        else:
-            return False
+        return False
 
 def checkPutOrPick (function: list)-> bool:
     #Lista de tamaño 4
     #put/pick: n,x
-    if len(function)!=4:
-        return False
+    
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]=="balloons" or function[3]=="chips") :
+        del function[0:4]
+        return True
     else:
-        if function[0]==":" and type(function[1])=="int" and (function[3]=="balloons" or function[3]=="chips") and function[2]==",":
-            return True
-        elif function[0]==":" and searchItem(function[1]) and (function[3]=="balloons" or function[3]=="chips") and function[2]==",":
-            return True
-        else:
-            return False
+        return False
 
 def checkMoveToOrJumpTo (function: list) -> bool:
     #Lista de tamaño 4
     #movetothe/jumptothe; n,d
-    if len(function)!=4:
-        return False
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and function[3]== ('back' or 'right' or 'left' or 'front') :
+        del function[0:4]
+        return True
+    
     else:
-        if function[0]==":" and type(function[1])=="int" and ((function[3]=="front")
-            or function[3]=="back" or function[3]=="right" or function[3]=="left") and function[2]==",":
-            return True
-        elif function[0]==":"  and searchItem(function[1]) and ((function[3]=="front")
-            or function[3]=="back" or function[3]=="right" or function[3]=="left") and  function[2]==",":
-            return True
-        else:
-            return False
+        return False
 
 def checkMoveOrjumpIndir (function: list)->bool:
     #Lista de tamaño 4
     #jumpIndir: n,D
-    if len(function)!=4:
-        return False
-    else:
-        if function[0]==":" and type(function[1])=="int" and (function[3]=="south" or function[3]=="north" or
-            function[3]=="east" or function[3]=="west") and function[2]==",":
-            return True
-        elif function[0]==":" and searchItem(function[1]) and (function[2]=="south" or function[2]=="north" or
-            function[2]=="east" or function[2]=="west") and function[2]==",":
-            return True
-        else:
-            return False
+   
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]==("south" or "north" or
+        "east" or "west")) :
+        del function[0:4]
+        return True
 
-def chechNop (function: list)-> bool:
+    else:
+        return False
+
+def checkNop (function: list)-> bool:
     #Lista de tamaño 1
     #nop:
-    if len(function)!=1:
-        return False
+    if function[0]==":":
+        del function[0:2]
+        return True
     else:
-        if function[0]==":":
-            return True
-        else:
-            return False
+        return False
 
 #FUNCIONES PARA IDENTIFICAR USO DE COMANDO
 
@@ -194,7 +170,7 @@ def recognizeCommand (command: str, function:list[str])->bool:
         recognized=checkMoveOrjumpIndir()
     elif command=="nop":
         print('Recognized command: nop')
-        recognized=chechNop()
+        recognized=checkNop()
     return recognized
 
 #FUNCIONES PARA VERIFICAR CONDICIONALES
@@ -468,13 +444,28 @@ def checkPROCS(d)->bool:
                 expectsSemiColon = False
                 expectsInstruction = False
                 while word != ']':
-                    if recognizeCommand(word, d): 
+                    if not expectsSemiColon:
+                        if recognizeCommand(word, d): 
+                            expectsSemiColon = True
+                            expectsInstruction = False
+                        elif word == ';':
+                            print('Esperaba nombre, recibí ";"')
+                            valid = False
+                            break
+                        else: 
+                            valid = False
+                            continues = False
+                            break
+                    elif expectsSemiColon:
+                        if word == ';':
+                            expectsSemiColon = False
+                            expectsInstruction = True
                         pass
-                    else: 
-                        valid = False
-                        continues = False
-                        break
                     word = pop(d)
+                    if expectsInstruction and word == ';':
+                        print(f'Esperaba instrucción, recibí ";"')
+                        valid = False
+                        break
                 if word == ']':
                     print('INSTRUCTIONS : λ')
 
