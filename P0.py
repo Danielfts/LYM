@@ -521,7 +521,13 @@ def recognizeIf(d:list)->bool:
     if word==":":
         word=pop(d)
         if recognizeConditional(word,d):
-            print("-------")
+            valid= True
+        else:
+            valid=False
+    else:
+        valid=False
+    return False
+
 
 #Main
 
