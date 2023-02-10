@@ -103,7 +103,7 @@ def checkPutOrPick (function: list)-> bool:
     #Lista de tamaño 4
     #put/pick: n,x
     
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]=="balloons" or function[3]=="chips") :
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and (function[3]=="balloons" or function[3]=="chips") :
         del function[0:4]
         return True
     else:
@@ -187,7 +187,7 @@ def checkFacing(function: list)->bool:
 def checkCanPutPick(function:list)->bool:
     #Lista de tamaño 4
     #canput/pick: n,x
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]=="balloons" or function[3]=="chips"):
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and (function[3]=="balloons" or function[3]=="chips"):
         del function[0:4]
         return True
     else:
@@ -196,7 +196,7 @@ def checkCanPutPick(function:list)->bool:
 def checkCanMoveJumpInDir (function:list)->bool:
     #Lista de tamaño 4
     #canmove/jumpindir: n,D
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and  (function[3]=="north" and function[3]=="south"
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and  (function[3]=="north" and function[3]=="south"
         and function[3]=="west" and function[3]=="east"):
         del function[0:4]
         return True
@@ -206,7 +206,7 @@ def checkCanMoveJumpInDir (function:list)->bool:
 def checkCanMoveJumpTo (function:list)->bool:
     #Lista de tamaño 4
     #canMove/jumptothe: n,o
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]=="front" and function[3]=="right" and
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and (function[3]=="front" and function[3]=="right" and
         function[3]=="back" and function[3]=="left"):
         del function[0:4]
         return True
@@ -382,7 +382,7 @@ def checkPROCS(d)->bool:
             elif expects == 'open' and word == '[':
                 openBlock == True
                 expects = 'parameters'
-    # PARAMS -> |NAMES|
+            # PARAMS -> |NAMES|
             elif expects == 'parameters' and word == '|':
             # NAMES -> NAME
             # NAMES -> NAME , NAMES
@@ -445,8 +445,9 @@ def checkPROCS(d)->bool:
                 expectsSemiColon = False
                 expectsInstruction = False
                 while word != ']':
+                    
                     if not expectsSemiColon:
-                        if recognizeCommand(word, d): 
+                        if recognizeCommand(word, d):
                             expectsSemiColon = True
                             expectsInstruction = False
                         elif word == ';':
