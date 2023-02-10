@@ -122,7 +122,7 @@ def checkMoveToOrJumpTo (function: list) -> bool:
 def checkMoveOrjumpIndir (function: list)->bool:
     #Lista de tamaño 4
     #jumpIndir: n,D
-   
+   #TODO QUE RAYOS PASA
     if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]==("south" or "north" or
         "east" or "west")) :
         del function[0:4]
@@ -449,19 +449,18 @@ def recognizeDefinitions(d, reserved):
             
             if word == ']':
                 print('INSTRUCTIONS : λ')
-            continues, valid = recognizeCommandBlock(d, word)
+            continues, valid = recognizeBlock(d, word)
 
             if continues: 
                 expects = 'name'
-            else:
-                recognizeLoop(d)
+
 
         else:
             continues = False
             break
     return valid
 
-def recognizeCommandBlock(d, word):
+def recognizeBlock(d, word):
     print('Buscando bloque COMMAND')
     expectsSemiColon = False
     expectsInstruction = False
@@ -469,7 +468,7 @@ def recognizeCommandBlock(d, word):
     valid = True
     while word != ']':
         if not expectsSemiColon:
-            if recognizeCommand(word, d) or recognizeConditional(word,d):
+            if recognizeCommand(word, d) or recognizeLoop(d):
                 expectsSemiColon = True
                 expectsInstruction = False
             elif word == ';':
@@ -505,7 +504,9 @@ def recognizeLoop(d: list)->bool:
             if d[0]=='do' and d[1] ==':':
                 word = pop(d)
                 word = pop(d)
-                valid = recognizeCommandBlock(d,word)
+                word = pop(d)
+                if word == '[':
+                    valid = recognizeBlock(d,word)
             
         else: 
             valid = False
@@ -513,21 +514,6 @@ def recognizeLoop(d: list)->bool:
         valid = False
     return valid
 
-def recognizeBlock(d:list)->bool:
-    word=pop(d)
-    if word=="[":
-        word=pop(d)
-        expects="command"
-        while word!="]":
-            if recognizeCommand(d):
-                expects=";"
-                word=pop(d)
-            elif recognizeConditional(d):
-                expects=";"
-                word=pop(d)
-            elif recognizeLoop(d):
-                expects=";"
-                word=pop(d)
             #
 
 #Main
