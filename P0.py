@@ -361,7 +361,7 @@ def checkPROCS(d)->bool:
     reserved = terminales.copy()
     reserved.remove('|')
     reserved.remove(',')
-    valid = False
+    valid = True
     print('Esperando: procs DEFINITIONS')
     procs = pop(d)
     if procs == 'procs': 
@@ -446,10 +446,12 @@ def recognizeDefinitions(d, reserved):
             #INSTRUCTION -> CONTROL
             #INSTRUCTION -> CALL
         elif expects == 'instructions':
-            print(word)
+            valid = True
             print('Esperando INSTRUCTIONS')
             expectsSemiColon = False
             expectsInstruction = False
+            if word == ']':
+                print('INSTRUCTIONS : λ')
             while word != ']':
                 if not expectsSemiColon:
                     if recognizeCommand(word, d):
@@ -467,15 +469,13 @@ def recognizeDefinitions(d, reserved):
                     if word == ';':
                         expectsSemiColon = False
                         expectsInstruction = True
-                    pass
+                    
                 word = pop(d)
                 if expectsInstruction and word == ';':
                     print(f'Esperaba instrucción, recibí ";"')
                     valid = False
                     break
-            if word == ']':
-                print('INSTRUCTIONS : λ')
-                #continues=False
+            if continues: expects = 'name'
 
         else:
             continues = False
