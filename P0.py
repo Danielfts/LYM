@@ -469,7 +469,7 @@ def recognizeCommandBlock(d, word):
     valid = True
     while word != ']':
         if not expectsSemiColon:
-            if recognizeCommand(word, d):
+            if recognizeCommand(word, d) or recognizeConditional(word,d):
                 expectsSemiColon = True
                 expectsInstruction = False
             elif word == ';':
@@ -505,7 +505,7 @@ def recognizeLoop(d: list)->bool:
             if d[0]=='do' and d[1] ==':':
                 word = pop(d)
                 word = pop(d)
-                valid = recognizeBlock(d)
+                valid = recognizeCommandBlock(d,word)
             
         else: 
             valid = False
