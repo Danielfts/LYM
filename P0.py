@@ -206,8 +206,8 @@ def checkCanMoveJumpInDir (function:list)->bool:
 def checkCanMoveJumpTo (function:list)->bool:
     #Lista de tamaño 4
     #canMove/jumptothe: n,o
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and (function[3]=="front" and function[3]=="right" and
-        function[3]=="back" and function[3]=="left"):
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and (function[3]=="front" or function[3]=="right" or
+        function[3]=="back" or function[3]=="left"):
         del function[0:4]
         return True
     else:
@@ -442,50 +442,75 @@ def recognizeDefinitions(d, reserved):
                 expects = 'instructions'
             #INSTRUCTIONS -> INSTRUCTION ; INSTRUCTIONS
             #INSTRUCTIONS -> INSTRUCTION
-            #INSTRUCTION -> COMMAND
-            #INSTRUCTION -> CONTROL
-            #INSTRUCTION -> CALL
+            #INSTRUCTION -> COMMAND | control | call
         elif expects == 'instructions':
             valid = True
             print('Esperando INSTRUCTIONS')
-            expectsSemiColon = False
-            expectsInstruction = False
+            
             if word == ']':
                 print('INSTRUCTIONS : λ')
-            while word != ']':
-                if not expectsSemiColon:
-                    if recognizeCommand(word, d):
-                        expectsSemiColon = True
-                        expectsInstruction = False
-                    elif word == ';':
-                        print('Esperaba nombre, recibí ";"')
-                        valid = False
-                        break
-                    else: 
-                        valid = False
-                        continues = False
-                        break
-                elif expectsSemiColon:
-                    if word == ';':
-                        expectsSemiColon = False
-                        expectsInstruction = True
-                    
-                word = pop(d)
-                if expectsInstruction and word == ';':
-                    print(f'Esperaba instrucción, recibí ";"')
-                    valid = False
-                    break
-            if continues: expects = 'name'
+            continues, valid = recognizeCommandBlock(d, word)
+
+            if continues: 
+                expects = 'name'
+            else:
+                recognizeLoop(d)
 
         else:
             continues = False
             break
     return valid
 
+def recognizeCommandBlock(d, word):
+    print('Buscando bloque COMMAND')
+    expectsSemiColon = False
+    expectsInstruction = False
+    continues = True
+    valid = True
+    while word != ']':
+        if not expectsSemiColon:
+            if recognizeCommand(word, d):
+                expectsSemiColon = True
+                expectsInstruction = False
+            elif word == ';':
+                print('Esperaba nombre, recibí ";"')
+                valid = False
+                break
+            else: 
+                valid = False
+                continues = False
+                break
+        elif expectsSemiColon:
+            if word == ';':
+                expectsSemiColon = False
+                expectsInstruction = True
+                    
+        word = pop(d)
+        if expectsInstruction and word == ';':
+            print(f'Esperaba instrucción, recibí ";"')
+            valid = False
+            break
+    return continues,valid
+
 def recognizeLoop(d: list)->bool:
-    if d[0]==":" and recognizeConditional(d[1]) and d[2]=="do" and d[3]==":":
+    print('Buscando LOOP')
+    """ if d[0]==":" and recognizeConditional(d[1]) and d[2]=="do" and d[3]==":":
         valid=recognizeBlock(d)
-        del function[0:4]
+        del function[0:4] """
+    valid = True
+    word = pop(d)
+    if word == ':':
+        word = pop(d)
+        if recognizeConditional(word,d):
+            if d[0]=='do' and d[1] ==':':
+                word = pop(d)
+                word = pop(d)
+                valid = recognizeBlock(d)
+            
+        else: 
+            valid = False
+    else:
+        valid = False
     return valid
 
 def recognizeBlock(d:list)->bool:

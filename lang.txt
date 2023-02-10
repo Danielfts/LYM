@@ -53,7 +53,7 @@ CONDITIONAL -> if: CONDITION then: EXEC else: EXEC
 LOOP -> while: CONDITION do: EXEC
 REPEAT -> repeat: X EXEC
 
-EXEC -> BLOCK | COMMAND
+EXEC -> BLOCK | nop:
 CONDITION -> facing: OTN 
 CONDITION -> canPut: X , OBJ  
 CONDITION -> canPick: X , OBJ  
