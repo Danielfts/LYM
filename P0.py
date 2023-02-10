@@ -369,113 +369,116 @@ def checkPROCS(d)->bool:
     # DEFINITIONS -> DEF DEFINITIONS
     # DEFINITIONS -> DEF
     # DEF -> NAME [ PARAMS INSTRUCTIONS ]
-        continues = True
-        expects = 'name'
-        openBlock = False
-        while continues:
-            word = pop(d)
-            validName = bool(re.match('^[a-z]\w*',word))
-            if expects == 'name' and validName: 
-                print(f'Nombre de procedimiento: {word}')
-                addProc(word)
-                expects = 'open'
-            elif expects == 'open' and word == '[':
-                openBlock == True
-                expects = 'parameters'
+        valid = recognizeDefinitions(d, reserved)
+    else: 
+        print(f'Esperaba PROCS, encontré: {procs}')
+    return valid
+
+def recognizeDefinitions(d, reserved):
+    continues = True
+    expects = 'name'
+    openBlock = False
+    while continues:
+        word = pop(d)
+        validName = bool(re.match('^[a-z]\w*',word))
+        if expects == 'name' and validName: 
+            print(f'Nombre de procedimiento: {word}')
+            addProc(word)
+            expects = 'open'
+        elif expects == 'open' and word == '[':
+            openBlock == True
+            expects = 'parameters'
             # PARAMS -> |NAMES|
-            elif expects == 'parameters' and word == '|':
+        elif expects == 'parameters' and word == '|':
             # NAMES -> NAME
             # NAMES -> NAME , NAMES
-                expectsComma = False
-                expectsWord = False
-                word = pop(d)
+            expectsComma = False
+            expectsWord = False
+            word = pop(d)
             # NAME -> [a-z]\w*   
-                if word == '|':
-                    print('Parameters: |λ|')
-                while word != '|':
-                    validName = bool(re.match('(^[a-z])\w*',word))
-                    if not expectsComma:
-                        if  validName and not (word in reserved):
-                            print(f'Found parameter: {word}')
-                            addParams(word)
-                            expectsComma = True
-                            expectsWord = False
-                        elif word in reserved :
-                            print(f'{word} es una palabra reservada')
-                            continues = False
-                            valid = False
-                            break
-                        elif word == ',':
-                            print('Esperaba nombre, recibí ","')
-                            continues = False
-                            valid = False
-                            break
-                        elif not validName:
-                            print('Nombre inválido')
-                            valid = False
-                            continues = False
-                            break
-
-                    elif expectsComma:
-                        if word == ',':
-                            expectsComma = False
-                            expectsWord = True
-                        else: 
-                            print(f'Esperaba coma, recibí {word}')
-                            valid = False
-                            continues = False
-                            break
-                    word = pop(d)
-                    if expectsWord and word == '|':
-                        print(f'Esperaba nombre, recibí "|"')
+            if word == '|':
+                print('Parameters: |λ|')
+            while word != '|':
+                validName = bool(re.match('(^[a-z])\w*',word))
+                if not expectsComma:
+                    if  validName and not (word in reserved):
+                        print(f'Found parameter: {word}')
+                        addParams(word)
+                        expectsComma = True
+                        expectsWord = False
+                    elif word in reserved :
+                        print(f'{word} es una palabra reservada')
+                        continues = False
+                        valid = False
+                        break
+                    elif word == ',':
+                        print('Esperaba nombre, recibí ","')
+                        continues = False
+                        valid = False
+                        break
+                    elif not validName:
+                        print('Nombre inválido')
                         valid = False
                         continues = False
                         break
+
+                elif expectsComma:
+                    if word == ',':
+                        expectsComma = False
+                        expectsWord = True
+                    else: 
+                        print(f'Esperaba coma, recibí {word}')
+                        valid = False
+                        continues = False
+                        break
+                word = pop(d)
+                if expectsWord and word == '|':
+                    print(f'Esperaba nombre, recibí "|"')
+                    valid = False
+                    continues = False
+                    break
                 
-                if continues:
-                    expects = 'instructions'
+            if continues:
+                expects = 'instructions'
             #INSTRUCTIONS -> INSTRUCTION ; INSTRUCTIONS
             #INSTRUCTIONS -> INSTRUCTION
             #INSTRUCTION -> COMMAND
             #INSTRUCTION -> CONTROL
             #INSTRUCTION -> CALL
-            elif expects == 'instructions':
-                print(word)
-                print('Esperando INSTRUCTIONS')
-                expectsSemiColon = False
-                expectsInstruction = False
-                while word != ']':
-                    
-                    if not expectsSemiColon:
-                        if recognizeCommand(word, d):
-                            expectsSemiColon = True
-                            expectsInstruction = False
-                        elif word == ';':
-                            print('Esperaba nombre, recibí ";"')
-                            valid = False
-                            break
-                        else: 
-                            valid = False
-                            continues = False
-                            break
-                    elif expectsSemiColon:
-                        if word == ';':
-                            expectsSemiColon = False
-                            expectsInstruction = True
-                        pass
-                    word = pop(d)
-                    if expectsInstruction and word == ';':
-                        print(f'Esperaba instrucción, recibí ";"')
+        elif expects == 'instructions':
+            print(word)
+            print('Esperando INSTRUCTIONS')
+            expectsSemiColon = False
+            expectsInstruction = False
+            while word != ']':
+                if not expectsSemiColon:
+                    if recognizeCommand(word, d):
+                        expectsSemiColon = True
+                        expectsInstruction = False
+                    elif word == ';':
+                        print('Esperaba nombre, recibí ";"')
                         valid = False
                         break
-                if word == ']':
-                    print('INSTRUCTIONS : λ')
+                    else: 
+                        valid = False
+                        continues = False
+                        break
+                elif expectsSemiColon:
+                    if word == ';':
+                        expectsSemiColon = False
+                        expectsInstruction = True
+                    pass
+                word = pop(d)
+                if expectsInstruction and word == ';':
+                    print(f'Esperaba instrucción, recibí ";"')
+                    valid = False
+                    break
+            if word == ']':
+                print('INSTRUCTIONS : λ')
 
-            else:
-                continues = False
-                break
-    else: 
-        print(f'Esperaba PROCS, encontré: {procs}')
+        else:
+            continues = False
+            break
     return valid
 
 #Main
