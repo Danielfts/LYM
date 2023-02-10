@@ -475,6 +475,7 @@ def recognizeDefinitions(d, reserved):
                     break
             if word == ']':
                 print('INSTRUCTIONS : λ')
+                #continues=False
 
         else:
             continues = False
