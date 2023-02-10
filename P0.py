@@ -467,7 +467,7 @@ def recognizeBlock(d, word):
     valid = True
     while word != ']':
         if not expectsSemiColon:
-            if recognizeCommand(word, d) or recognizeLoop(d):
+            if recognizeCommand(word, d) or recognizeLoop(d) or recognizeIf(d):
                 expectsSemiColon = True
                 expectsInstruction = False
             elif word == ';':
@@ -514,7 +514,14 @@ def recognizeLoop(d: list)->bool:
         valid = False
     return valid
 
-            #
+def recognizeIf(d:list)->bool:
+    print("Buscando IF")
+    valid=True
+    word=pop(d)
+    if word==":":
+        word=pop(d)
+        if recognizeConditional(word,d):
+            print("-------")
 
 #Main
 
