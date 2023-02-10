@@ -122,9 +122,8 @@ def checkMoveToOrJumpTo (function: list) -> bool:
 def checkMoveOrjumpIndir (function: list)->bool:
     #Lista de tamaño 4
     #jumpIndir: n,D
-   #TODO QUE RAYOS PASA
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]==("south" or "north" or
-        "east" or "west")) :
+    var=function[1].isdigit()
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables) and function[2]=="," and (function[3]=="south" or function[3]=="north" or function[3]=="east" or function[3]=="west") :
         del function[0:4]
         return True
 
@@ -167,7 +166,7 @@ def recognizeCommand (command: str, function:list)->bool:
         recognized=checkMoveToOrJumpTo(function)
     elif command=="moveindir" or command=="jumpindir":
         print('Recognized command: moveindir | jumpindir')
-        recognized=checkMoveOrjumpIndir()
+        recognized=checkMoveOrjumpIndir(function)
     elif command=="nop":
         print('Recognized command: nop')
         recognized=checkNop()
@@ -506,6 +505,7 @@ def recognizeLoop(d: list)->bool:
                 word = pop(d)
                 word = pop(d)
                 if word == '[':
+                    word=pop(d)
                     valid = recognizeBlock(d,word)
             
         else: 
