@@ -482,6 +482,29 @@ def recognizeDefinitions(d, reserved):
             break
     return valid
 
+def recognizeLoop(d: list)->bool:
+    if d[0]==":" and recognizeConditional(d[1]) and d[2]=="do" and d[3]==":":
+        valid=recognizeBlock(d)
+        del function[0:4]
+    return valid
+
+def recognizeBlock(d:list)->bool:
+    word=pop(d)
+    if word=="[":
+        word=pop(d)
+        expects="command"
+        while word!="]":
+            if recognizeCommand(d):
+                expects=";"
+                word=pop(d)
+            elif recognizeConditional(d):
+                expects=";"
+                word=pop(d)
+            elif recognizeLoop(d):
+                expects=";"
+                word=pop(d)
+            #
+
 #Main
 
 def main():
