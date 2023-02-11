@@ -466,9 +466,10 @@ def recognizeBlock(d, word):
     valid = True
     while word != ']':
         if not expectsSemiColon:
-            if recognizeCommand(d, word) or recognizeLoop(d,word) or recognizeIf(d,word):
+            if recognizeCommand(d, word) or recognizeLoop(d,word) or recognizeIf(d,word)[0]:
                 expectsSemiColon = True
                 expectsInstruction = False
+                
             elif word == ';':
                 print('Esperaba nombre, recibí ";"')
                 valid = False
@@ -512,30 +513,33 @@ def recognizeLoop(d: list, word: str)->bool:
         valid = False
     return valid
 
-def recognizeIf(d:list,word:str)->bool:
+def recognizeIf(d:list,word:str)->tuple[bool]:
     print("Buscando IF")
+    expectsElse = False
     valid=True
     block1Recognized=False
-    if word == 'if':
+    if word == 'if' and d[0] == ':':
         word=pop(d)
-        if word==":":
-            word=pop(d)
-            if recognizeConditional(word,d):
-                if d[0]=="then" and d[1]==":":
+        word=pop(d)
+        if recognizeConditional(word,d):
+            if d[0]=="then" and d[1]==":":
+                word=pop(d)
+                word=pop(d)
+                word = pop(d)
+                if word == '[':
+                    word = pop(d)
+                    block1Recognized=recognizeBlock(d,word) # le pasa word = : y d[0] = '['
+                    if block1Recognized: print('BLOCK1 reconocido, esperando else')
+                if (block1Recognized and d[0]=="else" and d[1]==":"):
                     word=pop(d)
                     word=pop(d)
-                    block1Recognized=recognizeBlock(d,word)
-                    if (block1Recognized and d[0]=="else" and d[1]==":"):
-                        word=pop(d)
-                        word=pop(d)
-                        valid=recognizeBlock(d,word)
-            else:
-                valid=False
+                    word=pop(d)
+                    valid=recognizeBlock(d,word)
         else:
             valid=False
     else: 
         valid = False
-    return valid
+    return valid, expectsElse
 
 
 #Main
