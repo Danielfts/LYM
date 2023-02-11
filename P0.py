@@ -134,7 +134,7 @@ def checkNop (function: list)-> bool:
     #Lista de tamaño 1
     #nop:
     if function[0]==":":
-        del function[0:2]
+        del function[0:1]
         return True
     else:
         return False
