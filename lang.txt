@@ -49,11 +49,10 @@ ARGS -> ARG
 ARG -> X
 
 CONTROL -> CONDITIONAL | LOOP | REPEAT
-CONDITIONAL -> if: CONDITION then: EXEC else: EXEC
+CONDITIONAL -> if: CONDITION then: BLOCK else: BLOCK
 LOOP -> while: CONDITION do: EXEC
 REPEAT -> repeat: X EXEC
 
-EXEC -> BLOCK | nop:
 CONDITION -> facing: OTN 
 CONDITION -> canPut: X , OBJ  
 CONDITION -> canPick: X , OBJ  
