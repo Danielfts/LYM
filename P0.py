@@ -63,7 +63,7 @@ def checkGoto (function: list)->bool:
     #Lista de tamaño 4
     # goto: x,y
     #revisar variables----
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables )and function[2] == ',' and (function[4].isdigit() or function[4] in variables ) :
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables )and function[2] == ',' and (function[3].isdigit() or function[3] in variables ) :
         del function[0:4]
         return True
     
@@ -170,8 +170,19 @@ def recognizeCommand (function:list, command: str)->bool:
         recognized=checkMoveOrjumpIndir(function)
     elif command=="nop":
         print('Recognized command: nop')
-        recognized=checkNop()
+        recognized=checkNop(function)
+    elif command in procedures.keys():
+        print(f'Found procedure {command}')
+        recognized = checkProcedure(function)
+        pass
     return recognized
+
+def checkProcedure(function):
+    if function[0]==":" and (function[1]=="north" or function[1]=="south" or function[1]=="west" or function[1]=="east"):
+        del function[0:2]
+        return True
+    else:
+        return False
 
 #FUNCIONES PARA VERIFICAR CONDICIONALES
 
@@ -248,7 +259,7 @@ def recognizeNot (cond: str, function:list, command:list)->bool:
 
 #FUNCION LISTA VARIABLES
 variables = []
-procedures = []
+procedures = {}
 parameters = []
 def addVar (var: str)->list:
     global variables
@@ -256,7 +267,7 @@ def addVar (var: str)->list:
 
 def addProc (var: str)->list:
     global procedures
-    procedures.append(var)
+    procedures[var] = 0
 
 def addParams (var: str)->list:
     global parameters
@@ -297,14 +308,17 @@ def parser(data:list)->bool:
             valid = checkPROCS(d)
             if not valid: return result
 
-
-                
-
+            valid = recognizeInstBlock(d)
 
     else:
         result = False
 
     return result
+
+def recognizeInstBlock(d:list):
+    word = pop(d)
+    valid = recognizeBlock(d,word)
+    return valid
 
 def checkVARS(d)->bool:
     print('Esperando: vars NAMES ;')
@@ -377,13 +391,19 @@ def recognizeDefinitions(d, reserved):
     continues = True
     expects = 'name'
     openBlock = False
+    lastProc = ''
     while continues:
         word = pop(d) #Ojo con este pop(d)
         validName = bool(re.match('^[a-z]\w*',word))
-        if expects == 'name' and validName: 
-            print(f'Nombre de procedimiento: {word}')
-            addProc(word)
-            expects = 'open'
+        if expects == 'name': 
+            if validName: 
+                print(f'Nombre de procedimiento: {word}')
+                addProc(word)
+                lastProc = word
+                expects = 'open'
+            elif word == '[':
+                print('"[" Encontrado, espero BLOCK')
+                return valid
         elif expects == 'open' and word == '[':
             openBlock == True
             expects = 'parameters'
@@ -403,6 +423,7 @@ def recognizeDefinitions(d, reserved):
                     if  validName and not (word in reserved):
                         print(f'Found parameter: {word}')
                         addParams(word)
+                        procedures[lastProc] += 1
                         expectsComma = True
                         expectsWord = False
                     elif word in reserved :
@@ -466,10 +487,11 @@ def recognizeBlock(d, word):
     valid = True
     while word != ']':
         if not expectsSemiColon:
-            if recognizeCommand(d, word) or recognizeLoop(d,word) or recognizeIf(d,word)[0]:
+            if recognizeCommand(d, word) or recognizeLoop(d,word) or recognizeIf(d,word):
                 expectsSemiColon = True
                 expectsInstruction = False
-                
+                if d[0] == '[':
+                    break
             elif word == ';':
                 print('Esperaba nombre, recibí ";"')
                 valid = False
@@ -534,12 +556,14 @@ def recognizeIf(d:list,word:str)->tuple[bool]:
                     word=pop(d)
                     word=pop(d)
                     word=pop(d)
-                    valid=recognizeBlock(d,word)
+                    if word == '[':
+                        word = pop(d)
+                        valid=recognizeBlock(d,word)
         else:
             valid=False
     else: 
         valid = False
-    return valid, expectsElse
+    return valid
 
 
 #Main
