@@ -515,12 +515,20 @@ def recognizeLoop(d: list, word: str)->bool:
 def recognizeIf(d:list,word:str)->bool:
     print("Buscando IF")
     valid=True
+    block1Recognized=False
     if word == 'if':
         word=pop(d)
         if word==":":
             word=pop(d)
             if recognizeConditional(word,d):
-                valid= True
+                if d[0]=="then" and d[1]==":":
+                    word=pop(d)
+                    word=pop(d)
+                    block1Recognized=recognizeBlock(d,word)
+                    if (block1Recognized and d[0]=="else" and d[1]==":"):
+                        word=pop(d)
+                        word=pop(d)
+                        valid=recognizeBlock(d,word)
             else:
                 valid=False
         else:
