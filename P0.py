@@ -63,7 +63,7 @@ def checkGoto (function: list)->bool:
     #Lista de tamaño 4
     # goto: x,y
     #revisar variables----
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables )and function[2] == ',' and (function[4].isdigit() or function[4] in variables ) :
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables )and function[2] == ',' and (function[3].isdigit() or function[3] in variables ) :
         del function[0:4]
         return True
     
@@ -170,7 +170,7 @@ def recognizeCommand (function:list, command: str)->bool:
         recognized=checkMoveOrjumpIndir(function)
     elif command=="nop":
         print('Recognized command: nop')
-        recognized=checkNop()
+        recognized=checkNop(function)
     return recognized
 
 #FUNCIONES PARA VERIFICAR CONDICIONALES
@@ -466,10 +466,16 @@ def recognizeBlock(d, word):
     valid = True
     while word != ']':
         if not expectsSemiColon:
-            if recognizeCommand(d, word) or recognizeLoop(d,word) or recognizeIf(d,word)[0]:
+            if recognizeCommand(d, word) or recognizeLoop(d,word) :
                 expectsSemiColon = True
+                expectsInstruction = False 
+            elif recognizeIf(d,word):
+                #word=pop(d)    
+                expectsSemiColon = False
                 expectsInstruction = False
-                
+            elif word in procedures:
+                #TODO revisar los parametros 
+                1
             elif word == ';':
                 print('Esperaba nombre, recibí ";"')
                 valid = False
@@ -487,6 +493,8 @@ def recognizeBlock(d, word):
             print(f'Esperaba instrucción, recibí ";"')
             valid = False
             break
+    if word=="else":
+        return valid
     return valid
 
 def recognizeLoop(d: list, word: str)->bool:
@@ -534,12 +542,26 @@ def recognizeIf(d:list,word:str)->tuple[bool]:
                     word=pop(d)
                     word=pop(d)
                     word=pop(d)
-                    valid=recognizeBlock(d,word)
+                    word=pop(d)
+                    block1Recognized=recognizeBlock(d,word)
+                    if (block1Recognized and d[0]=="else" and d[1]==":" and d[2]=="["):
+                        word=pop(d)
+                        word=pop(d)
+                        word=pop(d)
+                        word=pop(d)
+                        valid=recognizeBlock(d,word)
+                        word=pop(d)
+                        if valid:
+                            print("if valido")
+            else:
+                valid=False
         else:
             valid=False
     else: 
         valid = False
     return valid, expectsElse
+
+
 
 
 #Main
