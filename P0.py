@@ -173,13 +173,14 @@ def recognizeCommand (function:list, command: str)->bool:
         recognized=checkNop(function)
     elif command in procedures.keys():
         print(f'Found procedure {command}')
-        recognized = checkProcedure(function)
+        recognized = checkProcedure(function, command)
         pass
     return recognized
 
-def checkProcedure(function):
-    if function[0]==":" and (function[1]=="north" or function[1]=="south" or function[1]=="west" or function[1]=="east"):
-        del function[0:2]
+def checkProcedure(function, command):
+    n = procedures[command]
+    if function[0]==":":
+        del function[0:n+2]
         return True
     else:
         return False
@@ -309,6 +310,7 @@ def parser(data:list)->bool:
             if not valid: return result
 
             valid = recognizeInstBlock(d)
+            result = valid
 
     else:
         result = False
@@ -571,7 +573,9 @@ def recognizeIf(d:list,word:str)->tuple[bool]:
 def main():
     loadLang('alphabet.txt')
     data = openCode('code.txt')
-    print(parser(data))
+    rta = parser(data)
+    print(f'El código es válido == {rta}')
+    
 
 #TODO cambiar tipos de dato str -> int
 
