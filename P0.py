@@ -141,7 +141,8 @@ def checkNop (function: list)-> bool:
 
 #FUNCIONES PARA IDENTIFICAR USO DE COMANDO
 
-def recognizeCommand (command: str, function:list)->bool:
+def recognizeCommand (function:list, command: str)->bool:
+    print('Buscando COMMAND')
     recognized=False
     if command=="assignto":
         print('Recognized command: assignto')
@@ -195,8 +196,7 @@ def checkCanPutPick(function:list)->bool:
 def checkCanMoveJumpInDir (function:list)->bool:
     #Lista de tamaño 4
     #canmove/jumpindir: n,D
-    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and  (function[3]=="north" and function[3]=="south"
-        and function[3]=="west" and function[3]=="east"):
+    if function[0]==":" and (function[1].isdigit() or function[1] in variables or function[1] in parameters) and function[2]=="," and  (function[3]=="north" or function[3]=="south" or function[3]=="west" or function[3]=="east"):
         del function[0:4]
         return True
     else:
@@ -223,18 +223,18 @@ def checkNot(function: list, command:list)->bool:
 
 #IDENTIFICAR USO DE CONDICIONALES
 
-def recognizeConditional (cond:str, function: list)->bool:
+def recognizeConditional (word:str, function: list)->bool:
     recognized=False
-    if cond=="facing":
+    if word=="facing":
         print('Recognized conditional: facing')
         recognized=checkFacing(function)
-    elif cond=="canput" or cond=="canpick":
+    elif word=="canput" or word=="canpick":
         print('Recognized conditional: canput | canpick')
         recognized=checkCanPutPick(function)
-    elif cond=="canmoveindir" or cond=="canjumpindir":
+    elif word=="canmoveindir" or word=="canjumpindir":
         print('Recognized conditional: canmoveindir | canjumpindir')
         recognized=checkCanMoveJumpInDir(function)
-    elif cond=="canmovetothe" or cond=="canjumptothe":
+    elif word=="canmovetothe" or word=="canjumptothe":
         print('Recognized conditional: canmovetothe | canjumptothe')
         recognized=checkCanMoveJumpTo(function)
     return recognized
@@ -378,7 +378,7 @@ def recognizeDefinitions(d, reserved):
     expects = 'name'
     openBlock = False
     while continues:
-        word = pop(d)
+        word = pop(d) #Ojo con este pop(d)
         validName = bool(re.match('^[a-z]\w*',word))
         if expects == 'name' and validName: 
             print(f'Nombre de procedimiento: {word}')
@@ -448,7 +448,7 @@ def recognizeDefinitions(d, reserved):
             
             if word == ']':
                 print('INSTRUCTIONS : λ')
-            continues, valid = recognizeBlock(d, word)
+            continues = recognizeBlock(d, word)
 
             if continues: 
                 expects = 'name'
@@ -460,14 +460,13 @@ def recognizeDefinitions(d, reserved):
     return valid
 
 def recognizeBlock(d, word):
-    print('Buscando bloque COMMAND')
+    print('Buscando BLOCK')
     expectsSemiColon = False
     expectsInstruction = False
-    continues = True
     valid = True
     while word != ']':
         if not expectsSemiColon:
-            if recognizeCommand(word, d) or recognizeLoop(d) or recognizeIf(d):
+            if recognizeCommand(d, word) or recognizeLoop(d,word) or recognizeIf(d,word):
                 expectsSemiColon = True
                 expectsInstruction = False
             elif word == ';':
@@ -476,7 +475,6 @@ def recognizeBlock(d, word):
                 break
             else: 
                 valid = False
-                continues = False
                 break
         elif expectsSemiColon:
             if word == ';':
@@ -488,45 +486,48 @@ def recognizeBlock(d, word):
             print(f'Esperaba instrucción, recibí ";"')
             valid = False
             break
-    return continues,valid
+    return valid
 
-def recognizeLoop(d: list)->bool:
+def recognizeLoop(d: list, word: str)->bool:
     print('Buscando LOOP')
-    """ if d[0]==":" and recognizeConditional(d[1]) and d[2]=="do" and d[3]==":":
-        valid=recognizeBlock(d)
-        del function[0:4] """
     valid = True
-    word = pop(d)
-    if word == ':':
+    if word == 'while':
         word = pop(d)
-        if recognizeConditional(word,d):
-            if d[0]=='do' and d[1] ==':':
-                word = pop(d)
-                word = pop(d)
-                word = pop(d)
-                if word == '[':
-                    word=pop(d)
-                    valid = recognizeBlock(d,word)
-            
-        else: 
+        if word == ':':
+            word = pop(d)
+            if recognizeConditional(word,d):
+                if d[0]=='do' and d[1] ==':':
+                    word = pop(d)
+                    word = pop(d)
+                    word = pop(d)
+                    if word == '[':
+                        word=pop(d)
+                        valid = recognizeBlock(d,word)
+                
+            else: 
+                valid = False
+        else:
             valid = False
-    else:
+    else: 
         valid = False
     return valid
 
-def recognizeIf(d:list)->bool:
+def recognizeIf(d:list,word:str)->bool:
     print("Buscando IF")
     valid=True
-    word=pop(d)
-    if word==":":
+    if word == 'if':
         word=pop(d)
-        if recognizeConditional(word,d):
-            valid= True
+        if word==":":
+            word=pop(d)
+            if recognizeConditional(word,d):
+                valid= True
+            else:
+                valid=False
         else:
             valid=False
-    else:
-        valid=False
-    return False
+    else: 
+        valid = False
+    return valid
 
 
 #Main
